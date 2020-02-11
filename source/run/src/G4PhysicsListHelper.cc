@@ -26,9 +26,9 @@
 //
 // $Id: G4PhysicsListHelper.cc 97917 2016-06-23 07:12:01Z gcosmo $
 //
-// 
+//
 // ------------------------------------------------------------
-//	GEANT 4 class header file 
+//	GEANT 4 class header file
 //
 // ------------------------------------------------------------
 //	History
@@ -47,7 +47,7 @@
 
 ////////////////////////////////////////////////////////
 G4ThreadLocal G4PhysicsListHelper* G4PhysicsListHelper::pPLHelper = 0;
- 
+
 ////////////////////////////////////////////////////////
 G4PhysicsListHelper::G4PhysicsListHelper()
   :  useCoupledTransportation(false),
@@ -86,7 +86,7 @@ G4PhysicsListHelper::~G4PhysicsListHelper()
 }
 
 ////////////////////////////////////////////////////////
-G4PhysicsListHelper* G4PhysicsListHelper::GetPhysicsListHelper()  
+G4PhysicsListHelper* G4PhysicsListHelper::GetPhysicsListHelper()
 {
   if (!pPLHelper)
   {
@@ -120,12 +120,12 @@ void G4PhysicsListHelper::CheckParticleList() const
 	if (isEmProc) break;
       }
     }
-    
-    if      ( name == "e-") isElectron = true; 
-    else if ( name == "e+") isPositron = true; 
-    else if ( name == "gamma") isGamma = true; 
-    else if ( name == "GenericIon") isGenericIon = true; 
-    else if ( name == "proton") isProton = true; 
+
+    if      ( name == "e-") isElectron = true;
+    else if ( name == "e+") isPositron = true;
+    else if ( name == "gamma") isGamma = true;
+    else if ( name == "GenericIon") isGenericIon = true;
+    else if ( name == "proton") isProton = true;
     else if ( particle->GetParticleType() == "nucleus") isAnyIon = true;
     else if ( particle->GetParticleType() == "baryon") {
        if ( particle->GetPDGCharge() != 0.0 ) isAnyChargedBaryon = true;
@@ -135,7 +135,7 @@ void G4PhysicsListHelper::CheckParticleList() const
   if (!isEmProc) return;
 
   // RULE 1
-  //  e+, e- and gamma should exist 
+  //  e+, e- and gamma should exist
   //   if one of them exist
   bool isEmBasic =  isElectron || isPositron || isGamma;
   bool isMissingEmBasic =  !isElectron || !isPositron || !isGamma;
@@ -148,8 +148,8 @@ void G4PhysicsListHelper::CheckParticleList() const
 #ifdef G4VERBOSE
     if (verboseLevel >0){
       G4cout << "G4PhysicsListHelper::CheckParticleList: "
-	     << missingName << " do not exist " << G4endl; 
-      G4cout << " These particle are necessary for basic EM processes" 
+	     << missingName << " do not exist " << G4endl;
+      G4cout << " These particle are necessary for basic EM processes"
 	     << G4endl;
     }
 #endif
@@ -159,7 +159,7 @@ void G4PhysicsListHelper::CheckParticleList() const
   }
 
   // RULE 2
-  //  proton should exist 
+  //  proton should exist
   //   if any other charged baryon  exist
   if (!isProton && isAnyChargedBaryon) {
     G4String missingName="proton ";
@@ -167,7 +167,7 @@ void G4PhysicsListHelper::CheckParticleList() const
 #ifdef G4VERBOSE
     if (verboseLevel >0){
       G4cout << "G4PhysicsListHelper::CheckParticleList: "
-	     << missingName << " does not exist "<< G4endl; 
+	     << missingName << " does not exist "<< G4endl;
       G4cout << " Proton is necessary for EM baryon processes" << G4endl;
     }
 #endif
@@ -176,9 +176,9 @@ void G4PhysicsListHelper::CheckParticleList() const
 		"Run0102", FatalException,
 		"Missing Proton");
   }
-   
+
   // RULE 3
-  //  GenericIonn should exist 
+  //  GenericIonn should exist
   //   if any other ion  exist
   if (!isGenericIon && isAnyIon) {
     G4String missingName="GenericIon ";
@@ -186,7 +186,7 @@ void G4PhysicsListHelper::CheckParticleList() const
 #ifdef G4VERBOSE
     if (verboseLevel >0){
       G4cout << "G4PhysicsListHelper::CheckParticleList: "
-	     << missingName << " does not exist "<< G4endl; 
+	     << missingName << " does not exist "<< G4endl;
       G4cout << " GenericIon should be created if any ion is necessary" << G4endl;
     }
 #endif
@@ -194,7 +194,7 @@ void G4PhysicsListHelper::CheckParticleList() const
 		"Run0103", FatalException,
 		"Missing GenericIon");
   }
-      
+
 }
 
 
@@ -214,30 +214,30 @@ void G4PhysicsListHelper::AddTransportation()
   }
 #endif
 
-  G4int nParaWorld = 
+  G4int nParaWorld =
     G4RunManagerKernel::GetRunManagerKernel()->GetNumberOfParallelWorld();
-  
-  if ( nParaWorld>0 || 
-       useCoupledTransportation || 
+
+  if ( nParaWorld>0 ||
+       useCoupledTransportation ||
        G4ScoringManager::GetScoringManagerIfExist()) {
 #ifdef G4VERBOSE
     if (verboseLevel >0) {
       G4cout << " G4PhysicsListHelper::AddTransportation()"
-	     << "--- G4CoupledTransportation is used " 
+	     << "--- G4CoupledTransportation is used "
 	     << G4endl;
     }
 #endif
-    theTransportationProcess = new G4CoupledTransportation(verboseLevelTransport);    
+    theTransportationProcess = new G4CoupledTransportation(verboseLevelTransport);
   } else {
     theTransportationProcess = new G4Transportation(verboseLevelTransport);
   }
- 
+
   // loop over all particles in G4ParticleTable
   aParticleIterator->reset();
   while( (*aParticleIterator)() ){
     G4ParticleDefinition* particle = aParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
-    // Add transportation process for all particles 
+    // Add transportation process for all particles
     if ( pmanager == 0) {
       // Error !! no process manager
 #ifdef G4VERBOSE
@@ -251,9 +251,9 @@ void G4PhysicsListHelper::AddTransportation()
 		  "Run0104", FatalException,
 		  "No process manager");
       continue;
-    } 
+    }
     // Molecule use different type transportation
-    if(particle->GetParticleType() == "Molecule") continue; 
+    if(particle->GetParticleType() == "Molecule") continue;
 
     // add transportation with ordering = ( -1, "first", "first" )
     pmanager ->AddProcess(theTransportationProcess);
@@ -264,11 +264,11 @@ void G4PhysicsListHelper::AddTransportation()
 
 ////////////////////////////////////////////////////////
 #include "G4ProcessManager.hh"
-  
+
 void G4PhysicsListHelper::ReadOrdingParameterTable()
 {
   G4bool readInFile = false;
-  std::ifstream fIn;  
+  std::ifstream fIn;
 
   if( getenv("G4ORDPARAMTABLE") ){
     ordParamFileName = getenv("G4ORDPARAMTABLE");
@@ -276,12 +276,12 @@ void G4PhysicsListHelper::ReadOrdingParameterTable()
     if (verboseLevel >1){
       G4cout << "G4PhysicsListHelper::ReadOrdingParameterTable  :"
 	     << ordParamFileName << " is assigned to Ordering Parameter Table "
-	     << G4endl; 
+	     << G4endl;
     }
 #endif
     // open input file //
     fIn.open(ordParamFileName, std::ios::in);
-    // check if the file has been opened successfully 
+    // check if the file has been opened successfully
     if (!fIn) {
 #ifdef G4VERBOSE
       if (verboseLevel >0) {
@@ -290,15 +290,15 @@ void G4PhysicsListHelper::ReadOrdingParameterTable()
       }
 #endif
       G4Exception("G4PhysicsListHelper::ReadOrdingParameterTable",
-		  "Run0105", JustWarning, 
+		  "Run0105", JustWarning,
 		  "Fail to open ordering paramter table ");
     } else {
       readInFile = true;
     }
   }
- 
 
-  // create OrdParamTable   
+
+  // create OrdParamTable
   if (theTable !=0) {
     theTable->clear();
     delete theTable;
@@ -309,7 +309,7 @@ void G4PhysicsListHelper::ReadOrdingParameterTable()
   sizeOfTable=0;
 
   if (readInFile){
-    // read in the file and fill the table 
+    // read in the file and fill the table
     while(!fIn.eof()) {
       G4PhysicsListOrderingParameter tmp;
       G4int flag;
@@ -317,7 +317,7 @@ void G4PhysicsListHelper::ReadOrdingParameterTable()
 	  >> tmp.ordering[0] >> tmp.ordering[1] >> tmp.ordering[2] >> flag;
       tmp.isDuplicable = (flag!=0);
       theTable->push_back(tmp);
-      sizeOfTable +=1;  
+      sizeOfTable +=1;
     }
     fIn.close();
   } else {
@@ -332,13 +332,13 @@ void G4PhysicsListHelper::ReadOrdingParameterTable()
     }
 #endif
     G4Exception("G4PhysicsListHelper::ReadOrdingParameterTable",
-		"Run0106", JustWarning, 
+		"Run0106", JustWarning,
 		"The ordering parameter table is empty ");
     delete theTable;
     theTable=0;
     sizeOfTable=0;
   }
-  return;  
+  return;
 }
 
 ////////////////////////////////////////////////////////
@@ -348,26 +348,26 @@ void G4PhysicsListHelper::DumpOrdingParameterTable(G4int subType) const
 #ifdef G4VERBOSE
     if (verboseLevel >0) {
       G4cout << "G4PhysicsListHelper::DumpOrdingParameterTable   "
-	     << " No ordering parameter table  : " << ordParamFileName 
+	     << " No ordering parameter table  : " << ordParamFileName
 	     << G4endl;
     }
 #endif
     return;
   }
   G4cout << "G4PhysicsListHelper::DumpOrdingParameterTable  : "
-	 << ordParamFileName << G4endl; 
-  G4cout << "          TypeName  " 
+	 << ordParamFileName << G4endl;
+  G4cout << "          TypeName  "
 	 << "    ProcessType" <<  "        SubType"
 	 << "         AtRest" <<  "      AlongStep" <<  "        PostStep"
 	 << "     Duplicable" << G4endl;
   for (int i=0; i<sizeOfTable ; i++){
     G4PhysicsListOrderingParameter* tmp=&(theTable->at(i));
     if ((subType>=0) && (subType!=tmp->processSubType)) continue;
-    G4cout << std::setw(18)     << tmp->processTypeName 
-	   << std::setw(15)     << tmp->processType 
+    G4cout << std::setw(18)     << tmp->processTypeName
+	   << std::setw(15)     << tmp->processType
 	   << std::setw(15)	<< tmp->processSubType
-	   << std::setw(15)	<< tmp->ordering[0] 
-	   << std::setw(15)	<< tmp->ordering[1] 
+	   << std::setw(15)	<< tmp->ordering[0]
+	   << std::setw(15)	<< tmp->ordering[1]
 	   << std::setw(15)	<< tmp->ordering[2];
     if (tmp->isDuplicable) {
       G4cout << "  true";
@@ -375,7 +375,7 @@ void G4PhysicsListHelper::DumpOrdingParameterTable(G4int subType) const
       G4cout << "  false";
     }
     G4cout <<G4endl;
-  }  
+  }
 }
 
 ////////////////////////////////////////////////////////
@@ -387,7 +387,7 @@ G4PhysicsListOrderingParameter G4PhysicsListHelper::GetOrdingParameter(G4int sub
 #ifdef G4VERBOSE
     if (verboseLevel >0) {
       G4cout << "G4PhysicsListHelper::GetOrderingParameter : "
-	     << " No ordering parameter table  : " << ordParamFileName 
+	     << " No ordering parameter table  : " << ordParamFileName
 	     << G4endl;
     }
 #endif
@@ -397,15 +397,15 @@ G4PhysicsListOrderingParameter G4PhysicsListHelper::GetOrdingParameter(G4int sub
   for (int i=0; i<sizeOfTable ; i++){
     G4PhysicsListOrderingParameter* tmp=&(theTable->at(i));
     if (subType == tmp->processSubType){
-      value.processTypeName = tmp->processTypeName; 
-      value.processType     = tmp->processType; 
-      value.processSubType  = tmp->processSubType; 
-      value.ordering[0]     = tmp->ordering[0]; 
-      value.ordering[1]     = tmp->ordering[1]; 
-      value.ordering[2]     = tmp->ordering[2]; 
+      value.processTypeName = tmp->processTypeName;
+      value.processType     = tmp->processType;
+      value.processSubType  = tmp->processSubType;
+      value.ordering[0]     = tmp->ordering[0];
+      value.ordering[1]     = tmp->ordering[1];
+      value.ordering[2]     = tmp->ordering[2];
       value.isDuplicable    = tmp->isDuplicable;
     }
-  }  
+  }
   return value;
 }
 
@@ -417,25 +417,25 @@ G4bool G4PhysicsListHelper::RegisterProcess(G4VProcess*            process,
 #ifdef G4VERBOSE
     if (verboseLevel >0) {
       G4cout << "G4PhysicsListHelper::RegisterProcess :"
-	     << " No ordering parameter table  : " << ordParamFileName 
+	     << " No ordering parameter table  : " << ordParamFileName
 	     << G4endl;
     }
 #endif
     G4Exception("G4PhysicsListHelper::RegisterPorcess",
-		"Run0107", FatalException, 
+		"Run0107", FatalException,
 		"No Ordering Parameter Table");
     return false;
   }
 
-  const G4String pName = process->GetProcessName(); 
+  const G4String pName = process->GetProcessName();
   const G4int pType    = process->GetProcessType();
   const G4int pSubType = process->GetProcessSubType();
-  
+
 #ifdef G4VERBOSE
   if (verboseLevel >2) {
     G4cout << "G4PhysicsListHelper::RegisterProcess :"
-	   << pName << " Process Type = " << pType 
-	   << " SubType = "<< pSubType  
+	   << pName << " Process Type = " << pType
+	   << " SubType = "<< pSubType
 	   << " to " << particle->GetParticleName()
 	   << G4endl;
   }
@@ -447,43 +447,43 @@ G4bool G4PhysicsListHelper::RegisterProcess(G4VProcess*            process,
     if (verboseLevel >0) {
       G4cout << "G4PhysicsListHelper::RegisterProcess :"
 	     << pName << " for " << particle->GetParticleName()
-	     << " has illegal Process Type = " << pType 
+	     << " has illegal Process Type = " << pType
 	     << " SubType = "<< pSubType << G4endl;
     }
 #endif
     G4Exception("G4PhysicsListHelper::RegisterPorcess",
-		"Run0108", FatalException, 
+		"Run0108", FatalException,
 		"No Matching process Type/SubType");
     return false;
   }
-  
+
   G4bool isFound = false;
   G4int  ord[3];
   G4bool duplicable = false;
   for (int i=0; i<sizeOfTable ; i++){
     G4PhysicsListOrderingParameter* tmp=&(theTable->at(i));
     if ((tmp->processType==pType)&&(tmp->processSubType==pSubType)){
-      ord[0] = tmp->ordering[0]; 
-      ord[1] = tmp->ordering[1]; 
+      ord[0] = tmp->ordering[0];
+      ord[1] = tmp->ordering[1];
       ord[2] = tmp->ordering[2];
       duplicable = tmp->isDuplicable;
       isFound = true;
       break;
     }
-  } 
+  }
   if (!isFound) {
 #ifdef G4VERBOSE
     if (verboseLevel >0) {
       G4cout << "G4PhysicsListHelper::RegisterProcess :"
 	     << pName << " for " << particle->GetParticleName()
-	     << " with  type/subtype =" 
-	     << pType << "/" << pSubType 
+	     << " with  type/subtype ="
+	     << pType << "/" << pSubType
 	     << "  is not reigstered in OrdingParameterTable  "
 	     << G4endl;
     }
 #endif
     G4Exception("G4PhysicsListHelper::RegisterPorcess",
-		"Run0109", FatalException, 
+		"Run0109", FatalException,
 		"No Matching process Type/SubType");
     return false;
   }
@@ -511,15 +511,15 @@ G4bool G4PhysicsListHelper::RegisterProcess(G4VProcess*            process,
     G4ProcessVector* pList = pManager->GetProcessList();
     for (G4int idx=0; idx<pList->size(); idx++) {
       const G4VProcess* p = (*pList)[idx];
-      if ((p->GetProcessType()== pType)  && 
+      if ((p->GetProcessType()== pType)  &&
 	  (p->GetProcessSubType()== pSubType)){
 	duplicated = true;
 #ifdef G4VERBOSE
 	if (verboseLevel >0) {
 	  G4cout << "G4PhysicsListHelper::RegisterProcess :"
 		 << pName << " for " << particle->GetParticleName()
-		 << " with  type/subtype =" 
-		 << pType << "/" << pSubType 
+		 << " with  type/subtype ="
+		 << pType << "/" << pSubType
 		 << "  is has same subType as "
 		 << p->GetProcessName()
 		 << " for " << particle->GetParticleName()
@@ -528,7 +528,7 @@ G4bool G4PhysicsListHelper::RegisterProcess(G4VProcess*            process,
 	}
 #endif
 	G4Exception("G4PhysicsListHelper::RegisterPorcess",
-		    "Run0111", JustWarning, 
+		    "Run0111", JustWarning,
 		    "Duplication of processes");
       }
     }
@@ -550,14 +550,14 @@ G4bool G4PhysicsListHelper::RegisterProcess(G4VProcess*            process,
       pManager->SetProcessOrdering( process, idxOrd , ord[idx]);
     } else {
       pManager->SetProcessOrderingToLast( process, idxOrd );
-    } 
-  } 
+    }
+  }
 #ifdef G4VERBOSE
   if (verboseLevel >1) {
     G4cout << "G4PhysicsListHelper::RegisterProcess :"
 	   << pName << " for " << particle->GetParticleName()
-	   << " with  type/subtype =" 
-	   << pType << "/" << pSubType 
+	   << " with  type/subtype ="
+	   << pType << "/" << pSubType
 	   << " is sucessfully registered with ordering parameters "
 	   << ord[0] << ":" << ord[1] << ":" << ord[2]
 	   << G4endl;
@@ -568,9 +568,9 @@ G4bool G4PhysicsListHelper::RegisterProcess(G4VProcess*            process,
 
 void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
 {
-  
+
   G4PhysicsListOrderingParameter tmp;
-  
+
   tmp.processTypeName = "Transportation";
   tmp.processType     = 1;
   tmp.processSubType  = 91;
@@ -579,7 +579,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  0;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "CoupleTrans";
   tmp.processType     = 1;
@@ -589,7 +589,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  0;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "CoulombScat";
   tmp.processType     = 2;
@@ -599,7 +599,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     = 1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Ionisation";
   tmp.processType     = 2;
@@ -609,7 +609,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  2;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Brems";
   tmp.processType     = 2;
@@ -619,7 +619,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  3;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "PairProdCharged";
   tmp.processType     = 2;
@@ -629,7 +629,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  4;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Annih";
   tmp.processType     = 2;
@@ -639,7 +639,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  5;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "AnnihToMuMu";
   tmp.processType     = 2;
@@ -649,7 +649,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  6;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "AnnihToHad";
   tmp.processType     = 2;
@@ -659,7 +659,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  7;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "NuclearStopp";
   tmp.processType     = 2;
@@ -669,7 +669,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     = -1;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Msc";
   tmp.processType     = 2;
@@ -679,7 +679,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Rayleigh";
   tmp.processType     = 2;
@@ -689,7 +689,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "PhotoElectric";
   tmp.processType     = 2;
@@ -699,7 +699,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Compton";
   tmp.processType     = 2;
@@ -709,7 +709,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Conv";
   tmp.processType     = 2;
@@ -719,7 +719,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "ConvToMuMu";
   tmp.processType     = 2;
@@ -729,7 +729,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Cerenkov";
   tmp.processType     = 2;
@@ -739,7 +739,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "Scintillation";
   tmp.processType     = 2;
@@ -749,7 +749,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  9999;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "SynchRad";
   tmp.processType     = 2;
@@ -759,7 +759,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "TransRad";
   tmp.processType     = 2;
@@ -769,7 +769,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "OpAbsorb";
   tmp.processType     = 3;
@@ -779,7 +779,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "OpBoundary";
   tmp.processType     = 3;
@@ -789,7 +789,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "OpRayleigh";
   tmp.processType     = 3;
@@ -799,7 +799,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "OpWLS";
   tmp.processType     = 3;
@@ -809,7 +809,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "OpMieHG";
   tmp.processType     = 3;
@@ -819,7 +819,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "DNAElastic";
   tmp.processType     = 2;
@@ -829,7 +829,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "DNAExcit";
   tmp.processType     = 2;
@@ -839,7 +839,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "DNAIonisation";
   tmp.processType     = 2;
@@ -849,7 +849,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "DNAVibExcit";
   tmp.processType     = 2;
@@ -859,7 +859,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "DNAAttachment";
   tmp.processType     = 2;
@@ -869,7 +869,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "DNAChargeDec";
   tmp.processType     = 2;
@@ -879,7 +879,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "DNAChargeInc";
   tmp.processType     = 2;
@@ -889,7 +889,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "DNAElectronSolvatation";
   tmp.processType     = 2;
@@ -925,7 +925,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.processType     = 1;
   tmp.processSubType  = 61;
   tmp.ordering[0]     = -1;
-  tmp.ordering[1]     = 0; 
+  tmp.ordering[1]     = 0;
   tmp.ordering[2]     = 0;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
@@ -969,7 +969,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "HadInElastic";
   tmp.processType     = 4;
@@ -979,7 +979,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "HadCapture";
   tmp.processType     = 4;
@@ -989,7 +989,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "HadFission";
   tmp.processType     = 4;
@@ -999,7 +999,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName = "HadAtRest";
   tmp.processType     = 4;
@@ -1009,7 +1009,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     = -1;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "HadCEX";
   tmp.processType     = 4;
@@ -1019,67 +1019,67 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "Decay";
   tmp.processType     = 6;
   tmp.processSubType  = 201;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     = -1;
+  tmp.ordering[1]     =  1000;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "DecayWSpin";
   tmp.processType     = 6;
   tmp.processSubType  = 202;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     = -1;
+  tmp.ordering[1]     =  1000;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "DecayPiSpin";
   tmp.processType     = 6;
   tmp.processSubType  = 203;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     = -1;
+  tmp.ordering[1]     =  1000;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "DecayRadio";
   tmp.processType     = 6;
   tmp.processSubType  = 210;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     = -1;
+  tmp.ordering[1]     =  1000;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "DecayUnKnown";
   tmp.processType     = 6;
   tmp.processSubType  = 211;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     = -1;
+  tmp.ordering[1]     =  1000;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "DecayExt";
   tmp.processType     = 6;
   tmp.processSubType  = 231;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     = -1;
+  tmp.ordering[1]     =  1000;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "StepLimiter";
   tmp.processType     = 7;
@@ -1089,7 +1089,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "UsrSepcCuts";
   tmp.processType     = 7;
@@ -1099,7 +1099,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "NeutronKiller";
   tmp.processType     = 7;
@@ -1109,7 +1109,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 
   tmp.processTypeName =  "ParallelWorld";
   tmp.processType     = 10;
@@ -1119,7 +1119,5 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.ordering[2]     =  9900;
   tmp.isDuplicable =  true;
   theTable->push_back(tmp);
-  sizeOfTable +=1;  
+  sizeOfTable +=1;
 }
-
-
