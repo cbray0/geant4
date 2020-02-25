@@ -1025,7 +1025,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.processType     = 6;
   tmp.processSubType  = 201;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     =  1000;
+  tmp.ordering[1]     =  -1;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
@@ -1035,7 +1035,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.processType     = 6;
   tmp.processSubType  = 202;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     =  1000;
+  tmp.ordering[1]     =  -1;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
@@ -1045,7 +1045,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.processType     = 6;
   tmp.processSubType  = 203;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     =  1000;
+  tmp.ordering[1]     =  -1;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
@@ -1065,7 +1065,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.processType     = 6;
   tmp.processSubType  = 211;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     =  1000;
+  tmp.ordering[1]     =  -1;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
@@ -1075,7 +1075,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.processType     = 6;
   tmp.processSubType  = 231;
   tmp.ordering[0]     =  1000;
-  tmp.ordering[1]     =  1000;
+  tmp.ordering[1]     =  -1;
   tmp.ordering[2]     =  1000;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
