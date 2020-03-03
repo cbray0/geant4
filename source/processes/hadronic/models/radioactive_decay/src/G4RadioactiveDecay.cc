@@ -220,6 +220,88 @@ G4RadioactiveDecay::~G4RadioactiveDecay()
   delete dkmap;
 }
 
+G4double G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength(const G4Track &track, G4double previousStepSize,
+    G4double currentMinimumStep, G4double &currentSafety, G4GPILSelection *selection)
+    {
+      G4double interactionLength;
+      // verbosity level to toggle debug outputs
+      G4int verboseLevel = 1;
+      // G4cout << "G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength" << G4endl;
+
+      // const G4DynamicParticle *particleInstance = track.GetDynamicParticle();
+      const G4Step *thisStep = track.GetStep();
+      const G4ParticleDefinition *particleDef = track.GetParticleDefinition();
+
+      G4double pdgLifetime = particleDef->GetPDGLifeTime();
+      G4double deltaTime = thisStep->GetDeltaTime();
+      G4double length = thisStep->GetStepLength();
+
+      G4double velocity = track.GetVelocity();
+
+
+      G4double decayFrac = std::exp(-deltaTime/pdgLifetime);
+      G4double randFrac = G4UniformRand();
+
+      // if the deltaTime is 0, then the step hasn't done anything.
+      if (deltaTime <= 0 && pdgLifetime > 0)
+      {
+        // Try using a very small suggested physical interaction length
+        // based on velocity and a fraction of the lifetime
+        interactionLength = velocity * pdgLifetime/50;
+        // interactionLength = DBL_MAX;
+      } else if (pdgLifetime < 0.0) {
+        // interpret negative PDG lifetimes as a stable particle
+        interactionLength = DBL_MAX;
+      } else {
+        interactionLength = decayFrac/randFrac * length;
+      }
+
+      // G4double preAssignedDecayTime = particleInstance->GetPreAssignedDecayProperTime();
+      // G4double decaytime = preAssignedDecayTime;
+      
+      // As of 2-25-2020, thge preAssignedDecayTime is -1 for the example problem.
+      // the pdfLifetime for the ne24 example is very large (2.92579e+11 ns)
+      // if the preAssignedDecayTime is negative, assume a lifetime of 1e-5 ns
+      // if (preAssignedDecayTime < 0)
+      // {
+      //   decaytime = 1e-5 * ns;
+      // }
+
+      // G4double speed = track.GetVelocity();
+      // G4double interactionLength = decaytime * speed;
+
+      if (verboseLevel > 1)
+      {
+        // G4cout << "preAssignedDecayTime (ns): " << preAssignedDecayTime/ns << G4endl;
+        G4cout << "PDG Lifetime (ns): " << pdgLifetime/ns << G4endl;
+        G4cout << "interactionLength (nm): " << interactionLength/nm << G4endl;
+      }
+
+      return interactionLength;
+    }
+
+G4VParticleChange * G4RadioactiveDecay::AlongStepDoIt (const G4Track &track, const G4Step &step)
+    {
+        // G4cout << "G4RadioactiveDecay::AlongStepDoIt" << G4endl; 
+        // check if the decay should've happend
+        G4bool decayflag = ShouldDecay(track, step);
+        if (decayflag)
+        {
+          G4VParticleChange *decayProducts = DecayIt(track, step);
+          // G4cout << "\tWill decay: " << decayflag << G4endl;
+          return decayProducts;
+        } else 
+        {
+          return new G4VParticleChange;
+        }
+    }
+
+G4double G4RadioactiveDecay::GetContinuousStepLimit (const G4Track &aTrack, G4double previousStepSize,
+    G4double currentMinimumStep, G4double &currentSafety)
+    {
+        // G4cout << "G4RadioactiveDecay::GetContinuousStepLimit" << G4endl;
+      return 0;
+    }
 
 G4bool G4RadioactiveDecay::IsApplicable(const G4ParticleDefinition& aParticle)
 {
@@ -311,6 +393,8 @@ void G4RadioactiveDecay::DeselectAVolume(const G4String aVolume)
     }
   }
 }
+
+
 
 
 void G4RadioactiveDecay::SelectAllVolumes()
@@ -1960,4 +2044,35 @@ G4ThreeVector G4RadioactiveDecay::ChooseCollimationDirection() const {
 #endif
 
   return dir;
+}
+
+// function to check if a decay should've happened along a step
+// added by E. Miller 3-2-2020
+// returns true if the decay should happen, false otherwise
+G4bool G4RadioactiveDecay::ShouldDecay(const G4Track &track, const G4Step &step)
+{
+  // if the step number in the track is 0, that is the InitStep.
+  // Nothing has happend yet on the InitStep, so return false
+  G4int stepNumber = track.GetCurrentStepNumber();
+  if (stepNumber == 0) {
+    return false;
+  } else
+  {
+    const G4ParticleDefinition *particleDef = track.GetParticleDefinition();
+
+    G4double pdgLifetime = particleDef->GetPDGLifeTime();
+    if (pdgLifetime < 0)
+    {
+      return false;
+    }
+    G4double deltaTime = step.GetDeltaTime();
+    G4double length = step.GetStepLength();
+
+    G4double decayFrac = std::exp(-deltaTime/pdgLifetime);
+    G4double randFrac = G4UniformRand();
+
+    G4bool decayflag = decayFrac/randFrac < 1.0;
+
+    return decayflag;
+  }
 }

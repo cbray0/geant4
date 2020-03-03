@@ -93,9 +93,20 @@ class G4RadioactiveDecay : public G4VRestContinuousDiscreteProcess
   // class description - end
 
   public: // with description
-    G4double AlongStepGetPhysicalInteractionLength(const G4Track &track, G4double previousStepSize, G4double currentMinimumStep, G4double &currentSafety, G4GPILSelection *selection) { G4cout << "G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength" << G4endl; return 0; }
-    G4VParticleChange * AlongStepDoIt (const G4Track &, const G4Step &) {G4cout << "G4RadioactiveDecay::AlongStepDoIt" << G4endl; return new G4VParticleChange;}
-    G4double GetContinuousStepLimit (const G4Track &aTrack, G4double previousStepSize, G4double currentMinimumStep, G4double &currentSafety) {G4cout << "G4RadioactiveDecay::GetContinuousStepLimit" << G4endl; return 0;}
+    G4double AlongStepGetPhysicalInteractionLength(const G4Track &track, G4double previousStepSize,
+        G4double currentMinimumStep, G4double &currentSafety, G4GPILSelection *selection);
+    // {
+    //     G4cout << "G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength" << G4endl; return 0;
+    // }
+    G4VParticleChange * AlongStepDoIt (const G4Track &, const G4Step &);
+    // {
+    //     G4cout << "G4RadioactiveDecay::AlongStepDoIt" << G4endl; return new G4VParticleChange;
+    // }
+    G4double GetContinuousStepLimit (const G4Track &aTrack, G4double previousStepSize,
+        G4double currentMinimumStep, G4double &currentSafety);
+    // {
+    //     G4cout << "G4RadioactiveDecay::GetContinuousStepLimit" << G4endl; return 0;
+    // }
 
     G4RadioactiveDecay(const G4String& processName="RadioactiveDecay");
     ~G4RadioactiveDecay();
@@ -281,6 +292,9 @@ class G4RadioactiveDecay : public G4VRestContinuousDiscreteProcess
     G4double halflifethreshold;
     G4bool applyICM;
     G4bool applyARM;
+
+    // function to test if the decay should've happened along a step
+    G4bool ShouldDecay(const G4Track &track, const G4Step &step);
 
     // Parameters for pre-collimated (biased) decay products
     G4ThreeVector forceDecayDirection;
