@@ -292,7 +292,10 @@ G4VParticleChange * G4RadioactiveDecay::AlongStepDoIt (const G4Track &track, con
           return decayProducts;
         } else 
         {
-          return new G4VParticleChange;
+          fParticleChangeForRadDecay.Initialize(track);
+          fParticleChangeForRadDecay.ProposeLocalEnergyDeposit(0.0);
+          fParticleChangeForRadDecay.SetNumberOfSecondaries(0);
+          return &fParticleChangeForRadDecay;
         }
     }
 
