@@ -200,7 +200,7 @@ G4RadioactiveDecay::G4RadioactiveDecay(const G4String& processName)
   BRBias      = true ;
   applyICM    = true ;
   applyARM    = true ;
-  halflifethreshold = nanosecond;
+  halflifethreshold = 1e-9*ns;
 
   // RDM applies to all logical volumes by default
   isAllVolumesMode = true;
@@ -233,27 +233,32 @@ G4double G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength(const G4Track
       const G4ParticleDefinition *particleDef = track.GetParticleDefinition();
 
       G4double pdgLifetime = particleDef->GetPDGLifeTime();
-      G4double deltaTime = thisStep->GetDeltaTime();
+      // G4double deltaTime = thisStep->GetDeltaTime();
+
       G4double length = thisStep->GetStepLength();
 
       G4double velocity = track.GetVelocity();
 
-
-      G4double decayFrac = std::exp(-deltaTime/pdgLifetime);
-      G4double randFrac = G4UniformRand();
-
       // if the deltaTime is 0, then the step hasn't done anything.
-      if (deltaTime <= 0 && pdgLifetime > 0)
+      if (length <= 0 && pdgLifetime > 0)
       {
         // Try using a very small suggested physical interaction length
         // based on velocity and a fraction of the lifetime
+        // interactionLength = velocity * pdgLifetime/50;
         interactionLength = velocity * pdgLifetime/50;
+
+        // G4cout << "Using initStep approximation." << G4endl;
         // interactionLength = DBL_MAX;
       } else if (pdgLifetime < 0.0) {
         // interpret negative PDG lifetimes as a stable particle
         interactionLength = DBL_MAX;
       } else {
-        interactionLength = decayFrac/randFrac * length;
+        // the GetDeltaTime() function ALWAYS returned zero, so we have to back calculate it.
+        // G4double deltaTime = length/velocity;
+        // G4double decayFrac = std::exp(-deltaTime/pdgLifetime);
+        // G4double randFrac = G4UniformRand();
+        // interactionLength = decayFrac/randFrac * length;
+        interactionLength = velocity * pdgLifetime/50;
       }
 
       // G4double preAssignedDecayTime = particleInstance->GetPreAssignedDecayProperTime();
@@ -2054,9 +2059,11 @@ G4ThreeVector G4RadioactiveDecay::ChooseCollimationDirection() const {
 // returns true if the decay should happen, false otherwise
 G4bool G4RadioactiveDecay::ShouldDecay(const G4Track &track, const G4Step &step)
 {
+
   // if the step number in the track is 0, that is the InitStep.
   // Nothing has happend yet on the InitStep, so return false
   G4int stepNumber = track.GetCurrentStepNumber();
+  // G4cout << "step number: " << stepNumber << G4endl;
   if (stepNumber == 0) {
     return false;
   } else
