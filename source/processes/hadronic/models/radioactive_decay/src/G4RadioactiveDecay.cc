@@ -245,7 +245,7 @@ G4double G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength(const G4Track
         // Try using a very small suggested physical interaction length
         // based on velocity and a fraction of the lifetime
         // interactionLength = velocity * pdgLifetime/50;
-        interactionLength = velocity * pdgLifetime/50;
+        interactionLength = DBL_MAX;
 
         // G4cout << "Using initStep approximation." << G4endl;
         // interactionLength = DBL_MAX;
@@ -254,11 +254,11 @@ G4double G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength(const G4Track
         interactionLength = DBL_MAX;
       } else {
         // the GetDeltaTime() function ALWAYS returned zero, so we have to back calculate it.
-        // G4double deltaTime = length/velocity;
-        // G4double decayFrac = std::exp(-deltaTime/pdgLifetime);
-        // G4double randFrac = G4UniformRand();
-        // interactionLength = decayFrac/randFrac * length;
-        interactionLength = velocity * pdgLifetime/50;
+        G4double deltaTime = length/velocity;
+        G4double decayFrac = std::exp(-deltaTime/pdgLifetime);
+        G4double randFrac = G4UniformRand();
+        interactionLength = decayFrac/randFrac * length;
+        // interactionLength = velocity * pdgLifetime/50;
       }
 
       // G4double preAssignedDecayTime = particleInstance->GetPreAssignedDecayProperTime();
@@ -2059,6 +2059,7 @@ G4ThreeVector G4RadioactiveDecay::ChooseCollimationDirection() const {
 // returns true if the decay should happen, false otherwise
 G4bool G4RadioactiveDecay::ShouldDecay(const G4Track &track, const G4Step &step)
 {
+  return true;
 
   // if the step number in the track is 0, that is the InitStep.
   // Nothing has happend yet on the InitStep, so return false
