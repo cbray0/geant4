@@ -322,6 +322,7 @@ G4ParticleDefinition* G4IonTable::CreateIon(G4int Z, G4int A, G4double E)
   // Request lock for particle table accesses. Some changes are inside 
   // this critical region.
   //
+  G4double lifetime = GetRadioactiveLifetime(Z, A, Eex) * s;
 
   ion = new G4Ions(   name,            mass,       0.0*MeV,     charge, 
 			 J,              +1,             0,          
@@ -335,6 +336,11 @@ G4ParticleDefinition* G4IonTable::CreateIon(G4int Z, G4int A, G4double E)
   //
 
   ion->SetPDGMagneticMoment(mu);
+
+  // Overwrite the lifetimes with what available in the RadioactiveDecay
+  // and Photon Evap. data files. The function returns in seconds, so
+  // we have to keep track of the units
+  ion->SetPDGLifeTime(lifetime);
 
   //No Anti particle registered
   ion->SetAntiPDGEncoding(0);
@@ -1796,7 +1802,150 @@ G4double G4IonTable::GetLifeTime(G4int Z, G4int A, G4double E) const
 }
 
 
+G4double G4IonTable::GetRadioactiveLifetime(G4int Z, G4int A, G4double E)
+{
+  // This function grabs the halflife from the radioactive decay data files
+  // and converts it to a lifetime.
+  // If no decay data is found, the lifetime is set to DBL_MAX
+  G4double tolerance = 1; //tolerance (in keV) of the excitation matching
+  G4double energyDiff;
 
+  // convert excitation E from MeV to keV
+  E = E*1000;
+
+  G4double lifetime = DBL_MAX;
+  G4double halflife = 1e-3;
+
+  G4String readType;
+  G4double readEnergy;
+  G4double readTime;
+
+  G4String file;
+  G4String inputLine;
+  char inputChars[100]={' '};
+  G4String dirName = getenv("G4RADIOACTIVEDATA");
+
+  std::ostringstream os;
+  os <<dirName <<"/z" <<Z <<".a" <<A <<'\0';
+  file = os.str();
+
+  G4cout << "Radioactive Data File (inside G4IonTable): " << file << G4endl << G4endl;
+
+  std::ifstream DecaySchemeFile(file);
+  // check if the file is a valid target
+  G4bool fileExists = DecaySchemeFile.good();
+
+  if (fileExists) {
+  // read the file and grab the lifetime for the appropriate excited state
+    while (!DecaySchemeFile.getline(inputChars, 100).eof()) {
+      inputLine = inputChars;
+      inputLine = inputLine.strip(1);
+      if (inputChars[0] != '#' && inputLine.length() != 0) {
+        std::istringstream tmpStream(inputLine);
+
+        if (inputChars[0] == 'P') {
+          // Nucleus is a parent type. Check excitation level to see if it
+          // matches the argument energy
+          tmpStream >> readType >> readEnergy >> readTime;
+          energyDiff = std::abs(readEnergy - E);
+          // if the difference between the energy in the file and the
+          // requested energy is below the tolerance, record the lifetime
+          if (energyDiff < tolerance) {
+            halflife = readTime;
+            lifetime = halflife / std::log(2);
+            G4cout << "Found halflife: " << halflife * s << G4endl;
+            return lifetime;
+
+          }
+        }
+      }
+    }
+  }
+
+  G4cout << "Error: Requested lifetime not found in RadioactiveDecay data for: " << G4endl;
+  G4cout << "Z: " << Z << "   A: " << A << "   Energy: " << E << G4endl;
+  G4cout << "Looking in the Photon Evaporation data." << G4endl;
+
+  // If the energy is not found in the radioactive decay files, search the photon evaporation data
+  // There will not be any states in the photon evap. data for ground states (E=0), don't look
+  if (E>0) {
+    lifetime = GetPhotonEvapLifetime(Z, A, E);
+  }
+
+  return lifetime;
+
+}
+
+// Find the lifetime of the state in the photon evaporation data files
+// returns mean lifetime (if found) in seconds
+// If not found, the lifetime is set to 0.
+G4double G4IonTable::GetPhotonEvapLifetime(G4int Z, G4int A, G4double E) 
+{
+  G4double lifetime = DBL_MAX;
+  G4double halflife = 1e-3;
+
+  G4double tolerance = 1; //in keV
+
+  // valeus read in from the photon evaporation data files
+  G4double readTime; // value to hold the currently-read halflife
+  G4double initEnergy;
+  G4double transitionEnergy;
+  G4double probability;
+  G4String polarity;
+  G4double energyDiff;
+
+
+  G4String file;
+  G4String inputLine;
+  G4int charCount;
+  // char inputChars[100]={' '};
+  G4String dirName = getenv("G4LEVELGAMMADATA");
+
+  std::ostringstream os;
+  os <<dirName <<"/z" <<Z <<".a" <<A <<'\0';
+  file = os.str();
+
+  // G4cout << "Photon Evaporation Data File: " << file << G4endl << G4endl;
+
+  std::ifstream PhotonEvap(file);
+  // G4cout << "Loaded file." << G4endl;
+  std::string line;
+
+  // read the file and grab the lifetime for the appropriate excited state
+  while (std::getline(PhotonEvap, line)) {
+    // charCount = PhotonEvap.gcount();
+    
+    std::istringstream currentLine(line);
+    // G4cout << line << G4endl;
+    // G4cout << "Count: " << charCount << G4endl;
+    // G4cout << "Peek: " << currentLine.peek() << G4endl;
+    
+    // if (currentLine.peek() != '#' && currentLine.gcount() != 0) {
+    if (currentLine.peek() != '#') {
+      // std::istringstream tmpStream(inputLine);
+
+      currentLine >> initEnergy >> transitionEnergy >> probability >> polarity >> readTime;
+      // G4cout << initEnergy << "   " << transitionEnergy << "   " << probability << "   " << polarity << "   " << readTime << G4endl;
+      energyDiff = std::abs(initEnergy - E);
+      // G4cout << "Energy Difference: " << energyDiff << G4endl;
+      // if the difference between the energy in the file and the
+      // requested energy is below the tolerance, record the lifetime
+      if (energyDiff < tolerance) {
+        halflife = readTime;
+        lifetime = halflife / std::log(2);
+        return lifetime;
+
+      }
+      
+    }
+  }
+
+  G4cout << "Error: Requested lifetime not found in Photon Evaporation data for: " << G4endl;
+  G4cout << "Z: " << Z << "   A: " << A << "   Energy: " << E << G4endl;
+
+  return lifetime;
+
+}
 
 
 

@@ -283,6 +283,12 @@ class G4IonTable
  private:
    G4NuclideTable* pNuclideTable;
    G4bool         isIsomerCreated;
+
+   // add a function that will return the lifetime of the state
+   // as given by the Radioactive Decay data.
+   G4double GetRadioactiveLifetime(G4int Z, G4int A, G4double E);
+   // function to return the lifetime based on the photon evaporation data
+   G4double GetPhotonEvapLifetime(G4int Z, G4int A, G4double E);
    // Isomer table and flag of creation    
  
  public:
