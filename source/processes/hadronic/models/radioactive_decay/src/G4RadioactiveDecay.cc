@@ -228,14 +228,17 @@ G4double G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength(const G4Track
       G4int verboseLevel = 1;
       // G4cout << "G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength" << G4endl;
 
+      // TF1 lengthGenerator("lengthGenerator", "e^(-x/[0])",0,DBL_MAX);
+
       // const G4DynamicParticle *particleInstance = track.GetDynamicParticle();
       const G4Step *thisStep = track.GetStep();
       const G4ParticleDefinition *particleDef = track.GetParticleDefinition();
 
       G4double pdgLifetime = particleDef->GetPDGLifeTime();
-      // G4double deltaTime = thisStep->GetDeltaTime();
+      G4double deltaTime = thisStep->GetDeltaTime();
 
       G4double length = thisStep->GetStepLength();
+      G4double decayTime = -pdgLifetime*std::log(G4UniformRand());
 
       G4double velocity = track.GetVelocity();
 
@@ -254,10 +257,17 @@ G4double G4RadioactiveDecay::AlongStepGetPhysicalInteractionLength(const G4Track
         interactionLength = DBL_MAX;
       } else {
         // the GetDeltaTime() function ALWAYS returned zero, so we have to back calculate it.
-        G4double deltaTime = length/velocity;
+        // G4double deltaTime = length/velocity;
+        /*
         G4double decayFrac = std::exp(-deltaTime/pdgLifetime);
         G4double randFrac = G4UniformRand();
         interactionLength = decayFrac/randFrac * length;
+        */
+
+        // lengthGenerator.SetParameters(pdgLifetime);
+
+        interactionLength = decayTime * velocity;
+
         // interactionLength = velocity * pdgLifetime/50;
       }
 
