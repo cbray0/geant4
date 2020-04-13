@@ -1056,7 +1056,7 @@ void G4PhysicsListHelper::ReadInDefaultOrderingParameter()
   tmp.processSubType  = 210;
   tmp.ordering[0]     =  1000;
   tmp.ordering[1]     =  1000;
-  tmp.ordering[2]     =  1000;
+  tmp.ordering[2]     =  -1;
   tmp.isDuplicable =  false;
   theTable->push_back(tmp);
   sizeOfTable +=1;

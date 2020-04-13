@@ -202,6 +202,11 @@ class G4DynamicParticle
      G4double GetPreAssignedDecayProperTime() const;
      void SetPreAssignedDecayProperTime(G4double);
       //   Set/Get pre-assigned proper time when the particle will decay
+
+     // calculate a randome decay time to be used with PreAssignedDecayProperTime
+     // uses PDG lifetime from the particle definition, samples distribution randomly
+     G4double CalcRandomDecayTime();
+     void AssignCalcDecayTime();
  
    
   //- print out information

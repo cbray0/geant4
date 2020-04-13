@@ -59,6 +59,7 @@
 //         take into account the case of virtual photons
 //      revised by M.Kelsey         12 May 2010
 //	   ensure that all constructors initialize all data members
+//      Added PreAssignedDecayProperTime to all constructors that have particle definition
 //--------------------------------------------------------------
 
 #include "G4DynamicParticle.hh"
@@ -70,6 +71,7 @@
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
 #include "G4PrimaryParticle.hh"
+#include "Randomize.hh"
 
 G4ThreadLocal G4Allocator<G4DynamicParticle> *pDynamicParticleAllocator = 0;
 
@@ -115,6 +117,7 @@ G4DynamicParticle::G4DynamicParticle(const G4ParticleDefinition * aParticleDefin
 		   primaryParticle(0),
                    thePDGcode(0)
 {
+  AssignCalcDecayTime();
 }
 
 ////////////////////
@@ -137,6 +140,7 @@ G4DynamicParticle::G4DynamicParticle(const G4ParticleDefinition * aParticleDefin
 		   primaryParticle(0),
                    thePDGcode(0)
 {
+  AssignCalcDecayTime();
 }
 
 ////////////////////
@@ -157,6 +161,8 @@ G4DynamicParticle::G4DynamicParticle(const G4ParticleDefinition * aParticleDefin
                    thePDGcode(0)
 {
   SetMomentum(aParticleMomentum);  // 3-dim momentum is given
+
+  AssignCalcDecayTime();
 }
 
 
@@ -178,6 +184,8 @@ G4DynamicParticle::G4DynamicParticle(const G4ParticleDefinition * aParticleDefin
                    thePDGcode(0)
 {
   Set4Momentum(aParticleMomentum);  // 4-momentum vector (Lorentz vector) is given
+
+  AssignCalcDecayTime();
 }
 
 G4DynamicParticle::G4DynamicParticle(const G4ParticleDefinition * aParticleDefinition,
@@ -213,6 +221,8 @@ G4DynamicParticle::G4DynamicParticle(const G4ParticleDefinition * aParticleDefin
     SetMomentumDirection(1.0,0.0,0.0);
     SetKineticEnergy(0.0);
   }
+
+  AssignCalcDecayTime();
 }
 
 ////////////////////
@@ -237,6 +247,8 @@ G4DynamicParticle::G4DynamicParticle(const G4DynamicParticle &right):
       theElectronOccupancy =
 	new G4ElectronOccupancy(*right.theElectronOccupancy);
   }
+
+  AssignCalcDecayTime();
 }
 
 ////////////////////
@@ -448,4 +460,23 @@ G4double  G4DynamicParticle::GetElectronMass() const
   }
 
   return electronMass;
+}
+
+G4double G4DynamicParticle::CalcRandomDecayTime()
+{
+  G4double rand = G4UniformRand();
+  G4double tau = theParticleDefinition->GetPDGLifeTime();
+  if (tau != -1) {
+    // G4double rand = G4UniformRand(); //returns between zero and 1
+    G4double decayTime = -tau*std::log(rand);
+    return decayTime;
+  } else {
+    return DBL_MAX;
+  }
+}
+
+void G4DynamicParticle::AssignCalcDecayTime()
+{
+  G4double randomTau = CalcRandomDecayTime();
+  SetPreAssignedDecayProperTime(randomTau);
 }
